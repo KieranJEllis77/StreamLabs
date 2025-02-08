@@ -45,11 +45,11 @@
 </head>
 <body>
     <span id="match-clock">00:00</span>
-    <div>
-        <label for="custom-time">Set Custom Start Time (MM:SS):</label>
-        <input type="text" id="custom-time" placeholder="MM:SS">
-    </div>
     <div id="status">Waiting to start...</div>
+    <div>
+        <input type="text" id="custom-time" placeholder="MM:SS" />
+        <button onclick="setCustomTime()">Set Custom Time</button>
+    </div>
     <div id="controls">
         <button id="start" onclick="startClock()">Start</button>
         <button id="pause" onclick="stopClock()">Pause</button>
@@ -66,17 +66,6 @@
 
         function startClock() {
             if (!running) {
-                let customTime = document.getElementById("custom-time").value;
-                if (customTime && elapsedTime === 0) {
-                    let parts = customTime.split(":");
-                    if (parts.length === 2) {
-                        let minutes = parseInt(parts[0], 10);
-                        let seconds = parseInt(parts[1], 10);
-                        if (!isNaN(minutes) && !isNaN(seconds)) {
-                            elapsedTime = (minutes * 60 + seconds) * 1000;
-                        }
-                    }
-                }
                 startTime = Date.now() - elapsedTime;
                 running = true;
                 updateClock();
@@ -119,11 +108,26 @@
             updateStatus(`Timer Reset to ${minutes}:00`, `reset-${minutes}`);
         }
 
+        function setCustomTime() {
+            let input = document.getElementById("custom-time").value;
+            let parts = input.split(":"), minutes, seconds;
+
+            if (parts.length === 2) {
+                minutes = parseInt(parts[0]);
+                seconds = parseInt(parts[1]);
+                if (!isNaN(minutes) && !isNaN(seconds) && seconds >= 0 && seconds < 60) {
+                    elapsedTime = (minutes * 60 + seconds) * 1000;
+                    document.getElementById("match-clock").innerText = input;
+                    updateStatus(`Timer Set to ${input}`, "custom-time");
+                }
+            }
+        }
+
         function updateStatus(message, activeButtonId) {
             document.getElementById("status").innerText = message;
             document.querySelectorAll("button").forEach(btn => btn.classList.remove("active"));
             if (activeButtonId) {
-                document.getElementById(activeButtonId).classList.add("active");
+                document.getElementById(activeButtonId)?.classList.add("active");
             }
         }
     </script>
